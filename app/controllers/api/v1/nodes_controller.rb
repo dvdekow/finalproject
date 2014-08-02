@@ -1,7 +1,13 @@
 class Api::V1::NodesController < Api::V1::BaseController
   def index
   	@neo = Neography::Rest.new
-    respond_with(:node => Node.all, :message => 'OK')
+  	getBuyer = @neo.get_nodes_labeled("Buyer")
+  	# create new hash
+  	allBuyer = Hash.new
+  	getBuyer.each_with_index {|value,idx| allBuyer[idx] = value["data"]}
+  	# puts allBuyer.to_json
+  	# returning all buyer node
+    respond_with("buyer" => allBuyer.to_json, :message => 'OK')
   end
 
   def new
@@ -9,11 +15,45 @@ class Api::V1::NodesController < Api::V1::BaseController
   end
 
   def create
-    @node = Node.new
-    @node.itemname = params[:itemname]
-    @node.username = params[:username]
-    if @node.save
-      render json: {:node => @node, :message => 'Node has been created'}
+  	# initiate neography
+  	@neo = Neography::Rest.new
+    # @node = Node.new
+    # @node.itemname = params[:itemname]
+    # @node.username = params[:username]
+
+    # capturing parameter
+    userid = 'default'
+    itemid = '123'
+
+    type = 'unknown'
+
+    unless params[:itemid].nil?
+      itemid = params[:itemid]
+    end
+    
+    unless params[:userid].nil?
+  	  userid = params[:userid]
+    end
+
+    unless params[:type].nil?
+    	type = params[:type]
+    end
+
+    nodeBuyer = @neo.create_node("userid" => userid)
+    labeledBuyer = @neo.add_label(nodeBuyer, "Buyer")
+
+    nodeItem = @neo.create_node("itemid" => itemid)
+    labeledItem = @neo.add_label(nodeItem, "Item")
+
+    # create relationship
+    rel = @neo.create_relationship("look", nodeBuyer, nodeItem)
+
+    # return buyer node id, for updating when userid acquired
+
+    # labelnode = @neo.add_label(unlabelnode, "Buyer")
+    # newnode = @neo.create_node("userid" => "davideko")
+    unless rel.nil?
+      render json: {:node => rel, :message => 'Look relation has been created'}
   	else
       render json: {:message => 'Node has not been created'}
     end

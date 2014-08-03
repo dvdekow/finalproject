@@ -17,16 +17,11 @@ class Api::V1::NodesController < Api::V1::BaseController
   def create
   	# initiate neography
   	@neo = Neography::Rest.new
-    # @node = Node.new
-    # @node.itemname = params[:itemname]
-    # @node.username = params[:username]
-
-    # capturing parameter
+    # set default to avoid null params
     userid = 'default'
     itemid = '123'
-
     type = 'unknown'
-
+    # capturing parameter
     unless params[:itemid].nil?
       itemid = params[:itemid]
     end
@@ -61,7 +56,12 @@ class Api::V1::NodesController < Api::V1::BaseController
 
   def show
     @node = Node.find(params[:id])
-   	render json: {:node => @node, :message => 'Node found'}
+    # initiate neography
+  	@neo = Neography::Rest.new
+  	testnode = @neo.execute_query("match (n) where n.userid = 'davideko' return n")
+  	testnode2 = @neo.execute_query("match (n) where n.itemid = 'tv234' return n")
+  	rela = @neo.create_relationship("look", testnode["data"], testnode2["data"])
+   	render json: {:node => testnode["data"], :message => 'Node found'}
   end
 
   def edit

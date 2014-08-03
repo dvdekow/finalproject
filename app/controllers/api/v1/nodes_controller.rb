@@ -7,7 +7,7 @@ class Api::V1::NodesController < Api::V1::BaseController
   	getBuyer.each_with_index {|value,idx| allBuyer[idx] = value["data"]}
   	# puts allBuyer.to_json
   	# returning all buyer node
-    respond_with("buyer" => allBuyer.to_json, :message => 'OK')
+    respond_with("buyer" => allBuyer, :message => 'OK')
   end
 
   def new
@@ -108,27 +108,9 @@ class Api::V1::NodesController < Api::V1::BaseController
 	else
 	  render json: {:message => 'node not found'}
 	end
-    # @node = Node.find(params[:id])
-    # unless (params[:itemname].nil?) && (params[:username])
-    #  if @node.update_attributes(params[:itemname])
-    #  	@message = 'itemname'
-    #  end
-    #  if @node.update_attributes(params[:username])
-    #  	@message = @message + ' and ' + 'username'
-    #  end
-    #else
-    #  unless (params[:itemname].nil?)
-    #  	if @node.update_attributes(params[:itemname])
-    #  	  @message = 'itemname'
-    #    end
-    #  end
-    #  unless (params[:username].nil?)
-    #  	if @node.update_attributes(params[:username])
-    #  	  @message = 'username'
-    #    end
-    #  end
-    # end
-    # @message = @message + ' updated'
-    # render json: {:node => @node, :message => @message}
+  end
+
+  def destroy
+    @neo = Neography::Rest.new
   end
 end

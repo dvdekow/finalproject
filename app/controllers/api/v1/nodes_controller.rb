@@ -71,6 +71,7 @@ class Api::V1::NodesController < Api::V1::BaseController
     id = params[:id]
     # initiate neography
     @neo = Neography::Rest.new
+    # checking node in user node and item node
     uquerynode = @neo.execute_query("match (n) where n.userid = '#{id}' return n")
     iquerynode = @neo.execute_query("match (n) where n.itemid = '#{id}' return n")
   	
@@ -90,27 +91,44 @@ class Api::V1::NodesController < Api::V1::BaseController
   end
 
   def update
-    @node = Node.find(params[:id])
-    unless (params[:itemname].nil?) && (params[:username])
-      if @node.update_attributes(params[:itemname])
-      	@message = 'itemname'
-      end
-      if @node.update_attributes(params[:username])
-      	@message = @message + ' and ' + 'username'
-      end
-    else
-      unless (params[:itemname].nil?)
-      	if @node.update_attributes(params[:itemname])
-      	  @message = 'itemname'
-        end
-      end
-      unless (params[:username].nil?)
-      	if @node.update_attributes(params[:username])
-      	  @message = 'username'
-        end
-      end
-    end
-    @message = @message + ' updated'
-    render json: {:node => @node, :message => @message}
+  	@neo = Neography::Rest.new
+
+  	idatrributes = params[:id]
+  	changeattributes = params[:change]
+  	value = params[:value]
+
+  	# searching node
+  	que = @neo.execute_query("match (n) where n.userid = '#{idatrributes}' return n")
+
+  	unless que["data"].empty?
+	  quenode = que["data"]
+	  newnode =  @neo.set_node_properties(quenode, {changeattributes => value})
+
+	  render json: {:node => newnode, :message => 'Node attributes updated'}
+	else
+	  render json: {:message => 'node not found'}
+	end
+    # @node = Node.find(params[:id])
+    # unless (params[:itemname].nil?) && (params[:username])
+    #  if @node.update_attributes(params[:itemname])
+    #  	@message = 'itemname'
+    #  end
+    #  if @node.update_attributes(params[:username])
+    #  	@message = @message + ' and ' + 'username'
+    #  end
+    #else
+    #  unless (params[:itemname].nil?)
+    #  	if @node.update_attributes(params[:itemname])
+    #  	  @message = 'itemname'
+    #    end
+    #  end
+    #  unless (params[:username].nil?)
+    #  	if @node.update_attributes(params[:username])
+    #  	  @message = 'username'
+    #    end
+    #  end
+    # end
+    # @message = @message + ' updated'
+    # render json: {:node => @node, :message => @message}
   end
 end

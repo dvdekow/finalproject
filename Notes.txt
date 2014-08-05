@@ -1,0 +1,3 @@
+Notes :
+Konfigurasi Neo4j db
+Buat indexing langsung dilakukan pada basis data/ perlu buat api

@@ -2,7 +2,7 @@ Finalproject::Application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :nodes
-      resources :relation
+      resources :relations
     end
   end
   # The priority is based upon order of creation:

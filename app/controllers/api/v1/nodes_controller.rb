@@ -7,28 +7,16 @@ class Api::V1::NodesController < Api::V1::BaseController
   	getBuyer.each_with_index {|value,idx| allBuyer[idx] = value["data"]}
   	# puts allBuyer.to_json
   	# returning all buyer node
-    respond_with("buyer" => allBuyer, :message => 'OK')
+    render json: {"buyer" => allBuyer.to_json, :message => 'OK'}
   end
 
   def new
-  	@node = Node.new
+  	# @node = Node.new
   end
 
   def create
   	# initiate neography
   	@neo = Neography::Rest.new
-    # set default to avoid null params
-    # userid = 'default'
-    # itemid = '123'
-    # type = 'unknown'
-    # capturing parameter
-    # unless params[:itemid].nil?
-    #   itemid = params[:itemid]
-    # end
-    
-    # unless params[:userid].nil?
-  	#  userid = params[:userid]
-    # end
 
     if params[:itemid].nil?
       if params[:userid].nil?
@@ -43,41 +31,6 @@ class Api::V1::NodesController < Api::V1::BaseController
       labeledItem = @neo.add_label(nodeItem, "Item")
       render json: {:message => 'Item node has been created'}
     end
-
-    # unless params[:type].nil?
-    #	type = params[:type]
-    # end
-
-    # queryBuyer = @neo.execute_query("match (n) where n.userid = '#{userid}' return n")
-
-    # if queryBuyer["data"].empty?
-    #  nodeBuyer = @neo.create_node("userid" => userid)
-    #  labeledBuyer = @neo.add_label(nodeBuyer, "Buyer")
-    # else
-    #  nodeBuyer = queryBuyer["data"]
-    # end
-
-    # queryItem = @neo.execute_query("match (n) where n.itemid = '#{itemid}' return n")
-
-    # if queryItem["data"].empty?
-    #  nodeItem = @neo.create_node("itemid" => itemid)
-    #  labeledItem = @neo.add_label(nodeItem, "Item")
-    # else
-    #  nodeItem = queryItem["data"]
-    # end
-
-    # create relationship
-    # rel = @neo.create_relationship(type, nodeBuyer, nodeItem)
-
-    # return buyer node id, for updating when userid acquired
-
-    # labelnode = @neo.add_label(unlabelnode, "Buyer")
-    # newnode = @neo.create_node("userid" => "davideko")
-    # unless rel.nil?
-    #  render json: {:node => rel, :message => 'look relation has been created'}
-  	# else
-    #  render json: {:message => 'Node has not been created'}
-    # end
   end
 
   def show
@@ -101,7 +54,7 @@ class Api::V1::NodesController < Api::V1::BaseController
   end
 
   def edit
-    @node = Node.find(params[:id])
+    # @node = Node.find(params[:id])
   end
 
   def update

@@ -3,9 +3,46 @@
 API yang ada pada repositori ini digunakan untuk melakukan pengumpulan data serta penghasilan rekomendasi.
 
 == Documentation
-   Get All Node
-    method : GET
+1. Get All Node
+    url:: /api/v1/nodes
+    method:: GET
+    return:: JSON
+    param:: --
 
+    output:: 
+    [{
+      buyer: {
+        0: {
+        userid: "dvdekow"
+        }
+        1: {
+        userid: "davideko"
+        }
+        2: {
+        userid: "kowib"
+        }
+        3: {
+        userid: "kokow"
+        }
+        4: {
+        userid: "dvdekow"
+        }
+        5: {
+        userid: "dewo"
+        }
+        6: {
+        userid: "wowo"
+        }
+        7: {
+        userid: "wihiw"
+        }
+        8: {
+        userid: "wihihi"
+        }
+      }
+      message: "OK"
+      }
+    ]
 
 == Getting Started
 

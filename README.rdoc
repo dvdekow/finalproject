@@ -21,28 +21,46 @@ API yang ada pada repositori ini digunakan untuk melakukan pengumpulan data sert
         2: {
         userid: "kowib"
         }
-        3: {
-        userid: "kokow"
-        }
-        4: {
-        userid: "dvdekow"
-        }
-        5: {
-        userid: "dewo"
-        }
-        6: {
-        userid: "wowo"
-        }
-        7: {
-        userid: "wihiw"
-        }
-        8: {
-        userid: "wihihi"
-        }
       }
       message: "OK"
       }
     ]
+
+2. Create Node
+  2a. Create Buyer Node
+    url:: /api/v1/nodes
+    method:: POST
+    return:: JSON
+    param:: userid:string
+
+    output::
+  2b. Create Item Node
+    url:: /api/v1/nodes
+    method:: POST
+    return:: JSON
+    param:: itemid:string
+
+    output::
+
+3. Update/Add Node Attributes
+  3a. Update/Add Buyer Node Attributes
+    url:: /api/v1/node/{userid}
+    method:: PUT
+    return:: JSON
+    param:: change:string
+    param:: value:string
+
+    output::
+
+  3b. Update/Add Item Node Attributes
+    url:: /api/v1/node/{itemid}
+    method::PUT
+    return:: JSON
+    param:: change:string
+    param:: value:string
+
+    output::
+
 
 == Getting Started
 

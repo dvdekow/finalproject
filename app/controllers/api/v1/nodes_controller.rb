@@ -22,14 +22,14 @@ class Api::V1::NodesController < Api::V1::BaseController
       if params[:userid].nil?
         render json: {:message => 'Node has not been created, please insert parameter'}
       else
-      	nodeBuyer = @neo.create_node("userid" => userid)
+      	nodeBuyer = @neo.create_node("userid" => params[:userid])
         labeledBuyer = @neo.add_label(nodeBuyer, "Buyer")
-        render json: {:message => 'Buyer node has been created'}
+        render json: {:userid => params[:userid], :node => nodeBuyer["data"] ,:message => 'Buyer node has been created'}
       end
     else
-      nodeItem = @neo.create_node("itemid" => itemid)
+      nodeItem = @neo.create_node("itemid" => params[:itemid])
       labeledItem = @neo.add_label(nodeItem, "Item")
-      render json: {:message => 'Item node has been created'}
+      render json: {:itemid => params[:itemid], :node => nodeItem["data"], :message => 'Item node has been created'}
     end
   end
 

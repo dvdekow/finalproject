@@ -3,6 +3,7 @@ Finalproject::Application.routes.draw do
     namespace :v1 do
       resources :nodes
       resources :relations
+      resources :recommendations
     end
   end
   # The priority is based upon order of creation:

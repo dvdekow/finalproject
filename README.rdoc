@@ -2,6 +2,10 @@
 
 API yang ada pada repositori ini digunakan untuk melakukan pengumpulan data serta penghasilan rekomendasi.
 
+== Documentation
+   Get All Node
+    method : GET
+
 
 == Getting Started
 

@@ -111,6 +111,24 @@ class Api::V1::NodesController < Api::V1::BaseController
   end
 
   def destroy
+    #initialization
     @neo = Neography::Rest.new
+
+    #capturing parameter
+    idattributes = params[:id]
+    queribuyer = @neo.execute_query("match (n) where n.userid = '#{idattributes}' return n")
+
+    if queribuyer["data"].empty?
+      queriitem = @neo.execute_query("match (n) where n.itemid = '#{idattributes}' return n")
+      if queriitem["data"].empty?
+      	render json: {:node => queriitem["data"], :message => 'Node not found'}
+      else
+      	@neo.delete_node(queriitem["data"])
+      	render json: {:node => queriitem["data"], :message => 'Node succesfully deleted'}
+      end
+    else
+    	@neo.delete_node(queribuyer["data"])
+    	render json: {:node => queribuyer["data"], :message => 'Node succesfully deleted'}
+    end
   end
 end

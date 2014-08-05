@@ -1,6 +1,6 @@
-== Welcome to Api Tugas Akhir Sistem Rekomendasi berbasis Graph Database
+== Welcome to API Tugas Akhir "Sistem Rekomendasi berbasis Graph Database"
 
-
+API yang ada pada repositori ini digunakan untuk melakukan pengumpulan data serta penghasilan rekomendasi.
 
 
 == Getting Started

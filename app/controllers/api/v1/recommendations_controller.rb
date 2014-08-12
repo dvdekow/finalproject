@@ -7,6 +7,12 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
   end
 
   def create
+  	# initiate Neography
+  	@neo = Neography::Rest.new
+
+  	# getting similarity
+  	queryMatch = @neo.execute_query("")
+
   end
 
   def edit

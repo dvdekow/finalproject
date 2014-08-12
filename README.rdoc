@@ -3,7 +3,7 @@
 API yang ada pada repositori ini digunakan untuk melakukan pengumpulan data serta penghasilan rekomendasi.
 
 == Documentation
-1. Get All Node
+Get All Node
     url:: /api/v1/nodes
     method:: GET
     return:: JSON
@@ -25,8 +25,8 @@ API yang ada pada repositori ini digunakan untuk melakukan pengumpulan data sert
       message: "OK"
     }
 
-2. Create Node
-  2a. Create Buyer Node
+Create Node
+  Create Buyer Node
     url:: /api/v1/nodes
     method:: POST
     return:: JSON
@@ -41,7 +41,7 @@ API yang ada pada repositori ini digunakan untuk melakukan pengumpulan data sert
       message: "Buyer node has been created"
     }
 
-  2b. Create Item Node
+  Create Item Node
     url:: /api/v1/nodes
     method:: POST
     return:: JSON
@@ -56,8 +56,8 @@ API yang ada pada repositori ini digunakan untuk melakukan pengumpulan data sert
       message: "Item node has been created"
     }
 
-3. Update/Add Node Attributes
-  3a. Update/Add Buyer Node Attributes
+Update/Add Node Attributes
+  Update/Add Buyer Node Attributes
     url:: /api/v1/node/{userid}
     method:: PUT
     return:: JSON
@@ -65,8 +65,15 @@ API yang ada pada repositori ini digunakan untuk melakukan pengumpulan data sert
     param:: value:string
 
     output::
+    {
+      userid: "david006"
+      node: {
+              userid: "david001"
+      }
+      message: "User node has been created"
+    }
 
-  3b. Update/Add Item Node Attributes
+  Update/Add Item Node Attributes
     url:: /api/v1/node/{itemid}
     method::PUT
     return:: JSON
@@ -74,6 +81,13 @@ API yang ada pada repositori ini digunakan untuk melakukan pengumpulan data sert
     param:: value:string
 
     output::
+    {
+      itemid: "zfone2"
+      node: {
+              itemid: "zfone5"
+      }
+      message: "Item node has been created"
+    }
 
 
 == Description of Contents

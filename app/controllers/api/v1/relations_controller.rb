@@ -50,22 +50,57 @@ class Api::V1::RelationsController < Api::V1::BaseController
 
       # create relationship
       rel = @neo.create_relationship(type, nodeBuyer, nodeItem)
-
       # return buyer node id, for updating when userid acquired
 
       # labelnode = @neo.add_label(unlabelnode, "Buyer")
       # newnode = @neo.create_node("userid" => "davideko")
       unless rel.nil?
-        render json: {:node => rel, :message => 'look relation has been created'}
+      	if type.eql? "look"
+      	  wrel = @neo.set_relationship_properties(rel, {"rating" => 1})
+      	  render json: {:node => wrel, :message => 'look relation has been created'}
+        else
+      	  wrel = @neo.set_relationship_properties(rel, {"rating" => 2})
+      	  render json: {:node => wrel, :message => 'purchase relation has been created'}
+        end
   	  else
         render json: {:message => 'Node has not been created'}
       end
+	end
+
+	def show
+		userid = params[:id]
+		@neo = Neography::Rest.new
+		queryRelation = @neo.execute_query("match (n) where n.userid = '#{userid}' return n")
+		#get all relationship
+		result = @neo.get_node_relationships(queryRelation["data"]);
+
+		render json: {:relationship =>result, :message => 'OK'}
 	end
 
 	def edit
 	end
 
 	def update
+		userid = params[:id]
+		@neo = Neography::Rest.new
+		# get the node
+		queryNode = @neo.execute_query("match (n) where n.userid = '#{userid}' return n")
+		# get the relationship
+		relation = @neo.get_node_relationships(queryNode["data"]);
+
+		arrRel = Array.new
+
+		# update attribut
+		relation.each do |r|
+			if r["type"].eql? "look" 
+			  arrRel << @neo.set_relationship_properties(r, {"rating" => 1})
+			else
+			  arrRel << @neo.set_relationship_properties(r, {"rating" => 2})
+			end
+		end
+
+		render json: {:relationship => arrRel, :message => 'OK' }
+
 	end
 
 	def destroy

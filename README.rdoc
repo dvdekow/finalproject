@@ -73,7 +73,7 @@ Update/Add Node Attributes
       message: "Node attributes updated"
     }
 
-  Update/Add Item Node Attributes
+Update/Add Item Node Attributes
     url:: /api/v1/node/{itemid}
     method:: PUT
     return:: JSON
@@ -89,7 +89,7 @@ Update/Add Node Attributes
       message: "Node attributes updated"
     }
 
-    Create relation
+Create relation
       url:: /api/v1/relations/
       method:: POST
       return:: JSON
@@ -106,7 +106,7 @@ Update/Add Node Attributes
         message: "look relation has been created"
       }
 
-    Get Recommendation
+Get Recommendation
       url:: /api/v1/recommendation/{userid}
       method:: GET
       return:: JSON

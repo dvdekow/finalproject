@@ -70,12 +70,12 @@ Update/Add Node Attributes
       node: {
               userid: "david001"
       }
-      message: "User node has been created"
+      message: "Node attributes updated"
     }
 
   Update/Add Item Node Attributes
     url:: /api/v1/node/{itemid}
-    method::PUT
+    method:: PUT
     return:: JSON
     param:: change:string
     param:: value:string
@@ -86,9 +86,47 @@ Update/Add Node Attributes
       node: {
               itemid: "zfone5"
       }
-      message: "Item node has been created"
+      message: "Node attributes updated"
     }
 
+    Create relation
+      url:: /api/v1/relations/
+      method:: POST
+      return:: JSON
+      param:: userid:string
+      param:: itemid:string
+      param:: type:string
+
+      output::
+      {
+        relation: {
+        rating: 1
+        type: "look"
+        }
+        message: "look relation has been created"
+      }
+
+    Get Recommendation
+      url:: /api/v1/recommendation/{userid}
+      method:: GET
+      return:: JSON
+
+      output::
+      {
+        recommendation: {
+          columns: [
+            "Item"
+            "Recommendation"
+          ]
+          data: [
+           [
+            "hp345",
+            1
+           ]
+         ]
+        }
+        message: "Recommendation generated"
+      }
 
 == Description of Contents
 

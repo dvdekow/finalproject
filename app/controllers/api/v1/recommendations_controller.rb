@@ -11,7 +11,7 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
   	@neo = Neography::Rest.new
 
   	# getting similarity
-  	queryMatch = @neo.execute_query("")
+  	# queryMatch = @neo.execute_query("")
 
   end
 
@@ -33,8 +33,8 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
   	# getting neighbors
   	# table = @neo.execute_query("MATCH (b1:Buyer {userid:'davideko'})-[s:similarity]-(b2:Buyer) WITH b2, s.similarity AS sim ORDER BY sim DESC LIMIT 5 RETURN B2.userid AS Neighbor, sim AS Similarity")
   	# generating recommendations
-  	recomm = @neo.execute_query("MATCH    (b:Buyer)-[r:look]->(i:Item), (b)-[s:similarity]-(a:Buyer {userid:'davideko'})
-								 WHERE    NOT((a)-[:look]->(i))
+  	recomm = @neo.execute_query("MATCH    (b:Buyer)-[r:rated]->(i:Item), (b)-[s:similarity]-(a:Buyer {userid:'eko333'})
+								 WHERE    NOT((a)-[:rated]->(i))
 								 WITH     i, s.similarity AS similarity, r.rating AS rating
 								 ORDER BY i.itemid, similarity DESC
 								 WITH     i.itemid AS item, COLLECT(rating)[0..3] AS ratings

@@ -49,17 +49,17 @@ class Api::V1::RelationsController < Api::V1::BaseController
       end
 
       # create relationship
-      rel = @neo.create_relationship(type, nodeBuyer, nodeItem)
+      rel = @neo.create_relationship("rated", nodeBuyer, nodeItem)
       # return buyer node id, for updating when userid acquired
 
       # labelnode = @neo.add_label(unlabelnode, "Buyer")
       # newnode = @neo.create_node("userid" => "davideko")
       unless rel.nil?
       	if type.eql? "look"
-      	  wrel = @neo.set_relationship_properties(rel, {"rating" => 1})
+      	  wrel = @neo.set_relationship_properties(rel, {"rating" => 1, "type" => type})
       	  render json: {:node => wrel, :message => 'look relation has been created'}
         else
-      	  wrel = @neo.set_relationship_properties(rel, {"rating" => 2})
+      	  wrel = @neo.set_relationship_properties(rel, {"rating" => 2, "type" => type})
       	  render json: {:node => wrel, :message => 'purchase relation has been created'}
         end
   	  else

@@ -1,7 +1,7 @@
 class Api::V1::RelationsController < Api::V1::BaseController
 	def index
 	  # initialize neograohy
-      queryRelation = Neo,execute_query("match (a)-[r]-(b) return a,b")
+      queryRelation = Neo.execute_query("match (a)-[r]-(b) return a,b")
 
       respond_with("relation" => queryRelation, :message => 'OK')
 	end

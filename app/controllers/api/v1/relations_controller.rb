@@ -1,16 +1,16 @@
 class Api::V1::RelationsController < Api::V1::BaseController
-	def index
-	  # initialize neograohy
+  def index
+    # initialize neograohy
       queryRelation = Neo.execute_query("match (a)-[r]-(b) return a,b")
 
       respond_with("relation" => queryRelation, :message => 'OK')
-	end
+  end
 
-	def new
-	end
+  def new
+  end
 
-	def create
-	  # initiate neography
+  def create
+    # initiate neography
       # set default to avoid null params
       userid = 'default'
       itemid = '123'
@@ -21,11 +21,11 @@ class Api::V1::RelationsController < Api::V1::BaseController
       end
 
       unless params[:userid].nil?
-  	    userid = params[:userid]
+        userid = params[:userid]
       end
 
       unless params[:type].nil?
-    	type = params[:type]
+      type = params[:type]
       end
 
       queryBuyer = Neo.execute_query("match (n) where n.userid = '#{userid}' return n")
@@ -53,52 +53,52 @@ class Api::V1::RelationsController < Api::V1::BaseController
       # labelnode = Neo.add_label(unlabelnode, "Buyer")
       # newnode = Neo.create_node("userid" => "davideko")
       unless rel.nil?
-      	if type.eql? "look"
-      	  wrel = Neo.set_relationship_properties(rel, {"rating" => 1, "type" => type})
-      	  render json: {:node => wrel, :message => 'look relation has been created'}
+        if type.eql? "look"
+          wrel = Neo.set_relationship_properties(rel, {"rating" => 1, "type" => type})
+          render json: {:node => wrel, :message => 'look relation has been created'}
         else
-      	  wrel = Neo.set_relationship_properties(rel, {"rating" => 2, "type" => type})
-      	  render json: {:node => wrel, :message => 'purchase relation has been created'}
+          wrel = Neo.set_relationship_properties(rel, {"rating" => 2, "type" => type})
+          render json: {:node => wrel, :message => 'purchase relation has been created'}
         end
-  	  else
+      else
         render json: {:message => 'Node has not been created'}
       end
-	end
+  end
 
-	def show
-		userid = params[:id]
-		queryRelation = Neo.execute_query("match (n) where n.userid = '#{userid}' return n")
-		#get all relationship
-		result = Neo.get_node_relationships(queryRelation["data"]);
+  def show
+    userid = params[:id]
+    queryRelation = Neo.execute_query("match (n) where n.userid = '#{userid}' return n")
+    #get all relationship
+    result = Neo.get_node_relationships(queryRelation["data"]);
 
-		render json: {:relationship =>result, :message => 'OK'}
-	end
+    render json: {:relationship =>result, :message => 'OK'}
+  end
 
-	def edit
-	end
+  def edit
+  end
 
-	def update
-		userid = params[:id]
-		# get the node
-		queryNode = Neo.execute_query("match (n) where n.userid = '#{userid}' return n")
-		# get the relationship
-		relation = Neo.get_node_relationships(queryNode["data"]);
+  def update
+    userid = params[:id]
+    # get the node
+    queryNode = Neo.execute_query("match (n) where n.userid = '#{userid}' return n")
+    # get the relationship
+    relation = Neo.get_node_relationships(queryNode["data"]);
 
-		arrRel = Array.new
+    arrRel = Array.new
 
-		# update attribut
-		relation.each do |r|
-			if r["type"].eql? "look"
-			  arrRel << Neo.set_relationship_properties(r, {"rating" => 1})
-			else
-			  arrRel << Neo.set_relationship_properties(r, {"rating" => 2})
-			end
-		end
+    # update attribut
+    relation.each do |r|
+      if r["type"].eql? "look"
+        arrRel << Neo.set_relationship_properties(r, {"rating" => 1})
+      else
+        arrRel << Neo.set_relationship_properties(r, {"rating" => 2})
+      end
+    end
 
-		render json: {:relationship => arrRel, :message => 'OK' }
+    render json: {:relationship => arrRel, :message => 'OK' }
 
-	end
+  end
 
-	def destroy
-	end
+  def destroy
+  end
 end

@@ -7,7 +7,7 @@ class Api::V1::NodesController < Api::V1::BaseController
   	getBuyer.each_with_index {|value,idx| allBuyer[idx] = value["data"]}
   	# puts allBuyer.to_json
   	# returning all buyer node
-    render json: {"buyer" => allBuyer.to_json, :message => 'OK'}
+    render json: {"buyer" => allBuyer, :message => 'OK'}
   end
 
   def new
@@ -15,6 +15,7 @@ class Api::V1::NodesController < Api::V1::BaseController
   end
 
   def create
+  	time = Time.new
   	# initiate neography
   	@neo = Neography::Rest.new
 
@@ -24,11 +25,15 @@ class Api::V1::NodesController < Api::V1::BaseController
       else
       	nodeBuyer = @neo.create_node("userid" => params[:userid])
         labeledBuyer = @neo.add_label(nodeBuyer, "Buyer")
+        labeledBuyer =  @neo.set_node_properties(nodeBuyer, { "created_at" => time.inspect })
+	  	labeledBuyer =  @neo.set_node_properties(nodeBuyer, { "updated_at" => time.inspect })
         render json: {:userid => params[:userid], :node => nodeBuyer["data"] ,:message => 'Buyer node has been created'}
       end
     else
       nodeItem = @neo.create_node("itemid" => params[:itemid])
       labeledItem = @neo.add_label(nodeItem, "Item")
+      labeledItem =  @neo.set_node_properties(nodeItem, { "created_at" => time.inspect })
+	  labeledItem =  @neo.set_node_properties(nodeItem, { "updated_at" => time.inspect })
       render json: {:itemid => params[:itemid], :node => nodeItem["data"], :message => 'Item node has been created'}
     end
   end
@@ -58,6 +63,7 @@ class Api::V1::NodesController < Api::V1::BaseController
   end
 
   def update
+  	time = Time.new
   	@neo = Neography::Rest.new
 
   	idatrributes = params[:id]
@@ -67,14 +73,18 @@ class Api::V1::NodesController < Api::V1::BaseController
   	# searching node
   	que = @neo.execute_query("match (n) where n.userid = '#{idatrributes}' return n")
 
-  	unless que["data"].empty?
-	  quenode = que["data"]
-	  newnode =  @neo.set_node_properties(quenode, {changeattributes => value})
+  	newnode =  @neo.set_node_properties(que, {changeattributes => value})
+	newnode =  @neo.set_node_properties(que, { "updated_at" => time.inspect })
+  	#unless que["data"].empty?
+	#  quenode = que["data"]
+	#  newnode =  @neo.set_node_properties(quenode, {changeattributes => value})
+	#  newnode =  @neo.set_node_properties(quenode, { "created_at" => time.inspect })
+	#  newnode =  @neo.set_node_properties(quenode, { "updated_at" => time.inspect })
 
 	  render json: {:node => newnode, :message => 'Node attributes updated'}
-	else
-	  render json: {:message => 'node not found'}
-	end
+	#else
+	#  render json: {:message => 'node not found'}
+	#end
   end
 
   def destroy

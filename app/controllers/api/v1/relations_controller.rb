@@ -72,7 +72,7 @@ class Api::V1::RelationsController < Api::V1::BaseController
 		@neo = Neography::Rest.new
 		queryRelation = @neo.execute_query("match (n) where n.userid = '#{userid}' return n")
 		#get all relationship
-		result = @neo.get_node_relationships(queryRelation["data"]);
+		result = @neo.get_node_relationships(queryRelation["data"], "out", "rated");
 
 		render json: {:relationship =>result, :message => 'OK'}
 	end
@@ -89,11 +89,13 @@ class Api::V1::RelationsController < Api::V1::BaseController
 		relation = @neo.get_node_relationships(queryNode["data"]);
 
 		arrRel = Array.new
-
+		time = Time.new
 		# update attribut
 		relation.each do |r|
-			if r["type"].eql? "look" 
-			  arrRel << @neo.set_relationship_properties(r, {"rating" => 1})
+			if r["type"].eql? "rated" 
+			  # arrRel << @neo.set_relationship_properties(r, {"rating" => 1})
+			  arrRel << @neo.set_relationship_properties(r, {"created_at" => time.inspect})
+			  arrRel << @neo.set_relationship_properties(r, {"updated_at" => time.inspect})
 			else
 			  arrRel << @neo.set_relationship_properties(r, {"rating" => 2})
 			end

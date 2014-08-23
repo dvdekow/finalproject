@@ -1,6 +1,10 @@
 class Api::V1::RecommendationsController < Api::V1::BaseController
 
   def index
+  	@neo = Neography::Rest.new
+	queryRelation = @neo.execute_query("MATCH (x:Buyer {userid:'david123'} )-[r:rated]->(y:Item) RETURN r,y")
+  	
+  	render json: {:recommendation => queryRelation}
   end
 
   def new
@@ -16,6 +20,7 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
   end
 
   def show
+  	time = Time.new
   	id = params[:id]
   	@neo = Neography::Rest.new
   	# KNN algorhytm with cosine based similarity
@@ -42,7 +47,7 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
 								 WITH     item, REDUCE(s = 0, i IN ratings | s + i)*1.0 / LENGTH(ratings) AS reco
 								 ORDER BY reco DESC
 								 RETURN   item AS Item, reco AS Recommendation")
-  	render json: {:recommendation => recomm, :message => 'Recommendation generated' }
+  	render json: {:knn => recomm, :grafil => recomm, :created => time.inspect, :message => 'Recommendation generated' }
   end
 
   def edit
@@ -52,6 +57,24 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
   end
 
   def destroy
+  end
+
+  def grafil
+  		#get all subgraph G
+  		@neo = Neography::Rest.new
+  		g = @neo.get_nodes_labeled("Buyer")
+  		getBuyer.each_with_index {|value,idx| allBuyer[idx] = value["data"]}
+
+  		#get all relationship -> Query graph Q
+		q = @neo.execute_query("MATCH (x:Buyer {userid:'david123'} )-[r:rated]->(y:Item) RETURN r")
+
+		#calculating set feature
+		f = @neo.get_node_relationships(queryRelation["data"], "out", "rated");
+		maxL = F.size()
+		#calculate dmax
+		dmax = 1
+
+		#iteration
   end
 
 end

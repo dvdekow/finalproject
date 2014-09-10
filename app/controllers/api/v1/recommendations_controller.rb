@@ -1,8 +1,7 @@
 class Api::V1::RecommendationsController < Api::V1::BaseController
 
   def index
-  	@neo = Neography::Rest.new
-	queryRelation = @neo.execute_query("MATCH (x:Buyer {userid:'david123'} )-[r:rated]->(y:Item) RETURN r,y")
+	queryRelation = Neo.execute_query("MATCH (x:Buyer {userid:'david123'} )-[r:rated]->(y:Item) RETURN r,y")
   	
   	render json: {:recommendation => queryRelation}
   end
@@ -58,21 +57,21 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
   end
 
   def grafil
-  		#get all subgraph G
-  		@neo = Neography::Rest.new
-  		g = @neo.get_nodes_labeled("Buyer")
-  		getBuyer.each_with_index {|value,idx| allBuyer[idx] = value["data"]}
+    #get all subgraph G
+  	g = Neo.get_nodes_labeled("Buyer")
+  	all_g_relation = Array.new
+  	g.each {|value| gr = Neo.get_node_relationships(value["data"], "out", "rated"); all_g_relation << gr;}
 
-  		#get all relationship -> Query graph Q
-		q = @neo.execute_query("MATCH (x:Buyer {userid:'david123'} )-[r:rated]->(y:Item) RETURN r")
+  	# get all relationship -> Query graph Q
+	q = Neo.execute_query("MATCH (x:Buyer {userid:'david123'} )-[r:rated]->(y:Item) RETURN r")
 
-		#calculating set feature
-		f = @neo.get_node_relationships(queryRelation["data"], "out", "rated");
-		maxL = F.size()
-		#calculate dmax
-		dmax = 1
+	#calculating set feature
+	f = Neo.get_node_relationships(queryRelation["data"], "out", "rated")
+	maxL = f.size()
+	# calculate dmax
+	dmax = 1
 
-		#iteration
+	#iteration
   end
 
 end

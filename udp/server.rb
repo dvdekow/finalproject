@@ -18,5 +18,4 @@ while !data.eql? "exit" do
 	collect.relation(conv['userid'],conv['itemid'],conv['type'])
 	puts "From addr: '%s', msg: '%s'" % [addr.join(','), conv['userid']]
 	# jika data = lihat, data, id
-	#
 end

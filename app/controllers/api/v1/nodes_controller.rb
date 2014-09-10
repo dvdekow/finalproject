@@ -1,12 +1,73 @@
 class Api::V1::NodesController < Api::V1::BaseController
+  require 'set'
   def index
+  	#get id of the buyer
+  	iduser = "eko333"
+
+  	# array of relationship created, array of relationship = g
+    # now create the q, query graph
+    usr = Neo.execute_query("match (n) where n.userid = '#{iduser}' return n")
+    usr_r = Neo.get_node_relationships(usr["data"], "out", "rated")
+
+    # after query graph created extract the features
+    # features = Array.new
+    maxL = usr_r.size()
+    # puts maxL
+    yss = 1.upto(maxL).flat_map do |n|
+  	  usr_r.combination(n).to_a
+	end
+
+	check = Array.new
+	count_sub = Array.new
+	counter = 0
+
+	# array of relationship created, array of relationship = g
+
     getBuyer = Neo.get_nodes_labeled("Buyer")
+    all_g_relation = Array.new
+    getBuyer.each do |value| 
+      id_d = value["data"]["userid"]
+      unless id_d == iduser
+        one = Neo.execute_query("match (n) where n.userid = '#{id_d}' return n")
+        r = Neo.get_node_relationships(one["data"], "out", "rated")
+        all_g_relation << r
+        yss.each do |ycomp|
+      	  if r.size() >= ycomp.size()
+      	    res = r - ycomp
+      	    if r.size() == res.size()
+      		  counter = 0
+      		  check << counter
+      	    else
+      		  counter = 1
+      		  check << counter
+      	    end
+          else
+            counter = 0
+            check << counter
+          end
+	    end
+	    count_sub << check
+	    check = Array.new
+      end
+    end
+
+	puts 'RAM USAGE: ' + `pmap #{Process.pid} | tail -1`[10,40].strip
     # create new hash
-    allBuyer = Hash.new
-    getBuyer.each_with_index {|value,idx| allBuyer[idx] = value["data"]}
-    # puts allBuyer.to_json
+    # allBuyer = Hash.new
+    # getBuyer.each_with_index {|value,idx| allBuyer[idx] = Neo.get_node_relationships(value["data"])}
+    # puts getBuyer.to_json
+    # gr = Neo.get_node_relationships(getBuyer[0]["data"], "out")
     # returning all buyer node
-    render json: {"buyer" => allBuyer.to_json, :message => 'OK'}
+    # queryBuyer = Neo.execute_query("match (n) where n.userid = '#{userid}' return n")
+    # ququ = Neo.execute_query("match (n) where n.userid = 'david123' return n")
+    # r = Neo.get_node_relationships(ququ["data"], "out", "rated")
+    # quqi = Neo.execute_query("match (n) where n.userid = 'eko333' return n")
+    # ri = Neo.get_node_relationships(ququ["data"], "out", "rated")
+    # all_g_relation = Array.new
+    # all_g_relation << r
+    # all_g_relation << ri
+    # getBuyer.each {|value| all_g_relation << Neo.execute_query("MATCH (x:Buyer {userid:'#{value["data"]["id"]}'} )-[r:rated]->(y:Item) RETURN r")}
+    render json: {"graph" => all_g_relation, "query graph" => usr_r, "features" => yss, "count" => count_sub, :message => 'OK'}
   end
 
   def new

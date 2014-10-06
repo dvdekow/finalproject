@@ -7,18 +7,14 @@ class Collect
   end
 
   def create_node(tipe,nodeid)
-    time = Time.new
+    # time = Time.new
     node = ""
     if tipe == "buyer"
       node = @neo.create_node("userid" => nodeid)
-      label_node = @neo.add_label(node, "Buyer")
-      
-      prop_node = @neo.set_node_properties(node, {"created_at" => time.inspect, "updated_at" => time.inspect})
+      node = @neo.add_label(node, "Buyer")
     else
       node = @neo.create_node("itemid" => nodeid)
-      label_node = @neo.add_label(node, "Item")
-      
-      prop_node = @neo.set_node_properties(node, {"created_at" => time.inspect, "updated_at" => time.inspect})
+      node = @neo.add_label(node, "Item")
     end
 
     return node

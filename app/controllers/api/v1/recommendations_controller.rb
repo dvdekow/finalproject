@@ -45,6 +45,8 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
 								 ORDER BY reco DESC
 								 RETURN   item AS Item, reco AS Recommendation")
   	render json: {:knn => recomm, :grafil => recomm, :created => time.inspect, :message => 'Recommendation generated' }
+    
+    puts 'RAM USAGE: ' + `pmap #{Process.pid} | tail -1`[10,40].strip
   end
 
   def edit
@@ -63,15 +65,15 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
   	g.each {|value| gr = Neo.get_node_relationships(value["data"], "out", "rated"); all_g_relation << gr;}
 
   	# get all relationship -> Query graph Q
-	q = Neo.execute_query("MATCH (x:Buyer {userid:'david123'} )-[r:rated]->(y:Item) RETURN r")
+	  q = Neo.execute_query("MATCH (x:Buyer {userid:'david123'} )-[r:rated]->(y:Item) RETURN r")
 
-	#calculating set feature
-	f = Neo.get_node_relationships(queryRelation["data"], "out", "rated")
-	maxL = f.size()
-	# calculate dmax
-	dmax = 1
+	  #calculating set feature
+	  f = Neo.get_node_relationships(queryRelation["data"], "out", "rated")
+	  maxL = f.size()
+	  # calculate dmax
+	  dmax = 1
 
-	#iteration
+	  #iteration
   end
 
 end

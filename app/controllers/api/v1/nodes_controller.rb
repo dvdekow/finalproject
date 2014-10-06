@@ -1,8 +1,78 @@
 class Api::V1::NodesController < Api::V1::BaseController
   require 'set'
+
+  def checkSub(qgraph,feature)
+    puts "========================================"
+    puts "start checking"
+    puts feature.size()
+    if feature.size() <= qgraph.size()
+      i = 0
+      qgraph.each do |qsub|
+        feature.each do |f|
+          if qsub["end"] == f["end"]
+            i = i + 1
+            puts ""
+            puts "THIS IS QSUB"
+            puts qsub["end"]
+            puts "THIS IS F"
+            puts f["end"]
+          end
+        end
+      end
+      if i == feature.size()
+        puts "graph match"
+        return 1
+      else
+        puts "graph not match"
+        return 0
+      end
+    else
+      return 0
+    end
+    puts "end checking"
+  end
+
+  def getItem(id)
+    item_array = Array.new
+    item = Neo.execute_query("match (n) where n.userid = '#{id}' return n")
+    user_item = Neo.get_node_relationships(item["data"], "out", "rated")
+
+    user_item.each do |u|
+      item_array << u["end"]
+    end
+
+    return item_array
+  end
+
+  def getGrafil(matchres, usrid)
+    result_array = Array.new
+    if matchres.instance_of? Array
+      puts "array"
+
+      match_a = getItem(usrid)
+      puts match_a
+      puts "end of match a"
+      puts ""
+      i = 0
+      # get top 5
+      while i < 10  && i < matchres.size() do
+        match_m = getItem(matchres[i])
+        puts match_m
+        puts ""
+        result = match_m - match_a
+
+        result_array << result[0]
+        i += 1
+      end
+      puts result_array
+    else
+      puts "not array"
+    end
+  end
+
   def index
-  	#get id of the buyer
-  	iduser = "eko333"
+  	# get id of the buyer
+  	iduser = "a2"
 
   	# array of relationship created, array of relationship = g
     # now create the q, query graph
@@ -15,15 +85,19 @@ class Api::V1::NodesController < Api::V1::BaseController
     # puts maxL
     yss = 1.upto(maxL).flat_map do |n|
   	  usr_r.combination(n).to_a
-	end
+	  end
 
-	check = Array.new
-	count_sub = Array.new
-	counter = 0
+	  check = Array.new
 
-	# array of relationship created, array of relationship = g
+	  # array of relationship created, array of relationship = g
 
     getBuyer = Neo.get_nodes_labeled("Buyer")
+
+    count_sub = Array.new
+    most = 0
+    most_id = ""
+    array_most = Array.new
+
     all_g_relation = Array.new
     getBuyer.each do |value| 
       id_d = value["data"]["userid"]
@@ -32,22 +106,34 @@ class Api::V1::NodesController < Api::V1::BaseController
         r = Neo.get_node_relationships(one["data"], "out", "rated")
         all_g_relation << r
         yss.each do |ycomp|
-      	  if r.size() >= ycomp.size()
-      	    res = r - ycomp
-      	    if r.size() == res.size()
-      		  counter = 0
-      		  check << counter
-      	    else
-      		  counter = 1
-      		  check << counter
-      	    end
-          else
-            counter = 0
-            check << counter
+          if ycomp.size() == 1
+            check << checkSub(r,ycomp)
           end
-	    end
-	    count_sub << check
+	      end
+      sum = 0
+      check.each do |ea|
+        sum = sum + ea
+      end
+      unless most > sum
+        if most == 0
+          most = sum
+        elsif most < sum
+          most_id = id_d
+          array_most = Array.new
+        end
+        array_most << id_d
+      end
+      count_sub << {:userid => id_d, :sum => sum}
+	    # count_sub[counter][id_d] = sum
 	    check = Array.new
+      end
+      #get recommendation
+      if array_most.size() > 1
+        puts "much same"
+        getGrafil(array_most,iduser)
+      else
+        puts "only one"
+        #getGrafil(most_id,iduser)
       end
     end
 
@@ -67,7 +153,7 @@ class Api::V1::NodesController < Api::V1::BaseController
     # all_g_relation << r
     # all_g_relation << ri
     # getBuyer.each {|value| all_g_relation << Neo.execute_query("MATCH (x:Buyer {userid:'#{value["data"]["id"]}'} )-[r:rated]->(y:Item) RETURN r")}
-    render json: {"graph" => all_g_relation, "query graph" => usr_r, "features" => yss, "count" => count_sub, :message => 'OK'}
+    render json: {"graph" => all_g_relation, "query graph" => usr_r, "features" => yss, "count" => count_sub, "most" => most, "array_most" => array_most,:message => 'OK'}
   end
 
   def new

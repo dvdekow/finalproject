@@ -12,6 +12,7 @@ class Api::V1::RelationsController < Api::V1::BaseController
   def create
     # initiate neography
       # set default to avoid null params
+      collect = Collect.new
       userid = 'default'
       itemid = '123'
       type = 'unknown'
@@ -25,14 +26,15 @@ class Api::V1::RelationsController < Api::V1::BaseController
       end
 
       unless params[:type].nil?
-      type = params[:type]
+        type = params[:type]
       end
 
       queryBuyer = Neo.execute_query("match (n) where n.userid = '#{userid}' return n")
 
       if queryBuyer["data"].empty?
-        nodeBuyer = Neo.create_node("userid" => userid)
-        labeledBuyer = Neo.add_label(nodeBuyer, "Buyer")
+        # nodeBuyer = Neo.create_node("userid" => userid)
+        # labeledBuyer = Neo.add_label(nodeBuyer, "Buyer")
+        nodeBuyer = collect("buyer", userid)
       else
         nodeBuyer = queryBuyer["data"]
       end
@@ -40,8 +42,9 @@ class Api::V1::RelationsController < Api::V1::BaseController
       queryItem = Neo.execute_query("match (n) where n.itemid = '#{itemid}' return n")
 
       if queryItem["data"].empty?
-        nodeItem = Neo.create_node("itemid" => itemid)
-        labeledItem = Neo.add_label(nodeItem, "Item")
+        # nodeItem = Neo.create_node("itemid" => itemid)
+        # labeledItem = Neo.add_label(nodeItem, "Item")
+        nodeItem = collect("item", itemid)
       else
         nodeItem = queryItem["data"]
       end

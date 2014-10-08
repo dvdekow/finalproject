@@ -1,7 +1,7 @@
 class Api::V1::RecommendationsController < Api::V1::BaseController
-
+  require 'set'
   def index
-	queryRelation = Neo.execute_query("MATCH (x:Buyer {userid:'david123'} )-[r:rated]->(y:Item) RETURN r,y")
+	  queryRelation = Neo.execute_query("MATCH (x:Buyer {userid:'david123'} )-[r:rated]->(y:Item) RETURN r,y")
   	
   	render json: {:recommendation => queryRelation}
   end
@@ -10,15 +10,32 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
   end
 
   def create
-    # initiate Neography
-    # getting similarity
-    # queryMatch = Neo.execute_query("")
 
   end
-
+  
   def show
-  	time = Time.new
-  	id = params[:id]
+    time = Time.new
+    # get id of the buyer
+    iduser = params[:id]
+
+    recGrafil = startGrafil(iduser)
+    recKnn = knnRec(iduser)
+
+    puts 'RAM USAGE: ' + `pmap #{Process.pid} | tail -1`[10,40].strip
+    
+    render json: {"grafilrecom" => recGrafil,"knnrecom" => recKnn["data"], :message => 'OK'}
+  end
+
+  def edit
+  end
+
+  def update
+  end
+
+  def destroy
+  end
+
+  def knnRec(id)
     # KNN algorhytm with cosine based similarity
     # for get all rating between two buyers
     # table = Neo.execute_query("MATCH (b1:Buyer {userid: 'davideko'})-[r1:look]->(i:Item)<-[r2:look]-(b2:Buyer {userid: 'dewo'}) RETURN i.itemid AS Id, r1.rating AS davideko_rating, r2.rating AS dewo_rating")
@@ -31,49 +48,165 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
                                  MERGE (b1)-[s:similarity]-(b2)
                                  SET   s.similarity = xyDotProduct / (xLength * yLength)")
 
-  	# getting similarity value
-  	# table = @neo.execute_query("MATCH  (b1:Buyer {userid:'davideko'})-[s:similarity]-(b2:Buyer {userid:'wihihi'}) RETURN s.similarity AS `Cosine Similarity`")
-  	# getting neighbors
-  	# table = @neo.execute_query("MATCH (b1:Buyer {userid:'davideko'})-[s:similarity]-(b2:Buyer) WITH b2, s.similarity AS sim ORDER BY sim DESC LIMIT 5 RETURN B2.userid AS Neighbor, sim AS Similarity")
-  	# generating recommendations
-  	recomm = Neo.execute_query("MATCH    (b:Buyer)-[r:rated]->(i:Item), (b)-[s:similarity]-(a:Buyer {userid:'#{id}'})
-								 WHERE    NOT((a)-[:rated]->(i))
-								 WITH     i, s.similarity AS similarity, r.rating AS rating
-								 ORDER BY i.itemid, similarity DESC
-								 WITH     i.itemid AS item, COLLECT(rating)[0..3] AS ratings
-								 WITH     item, REDUCE(s = 0, i IN ratings | s + i)*1.0 / LENGTH(ratings) AS reco
-								 ORDER BY reco DESC
-								 RETURN   item AS Item, reco AS Recommendation")
-  	render json: {:knn => recomm, :grafil => recomm, :created => time.inspect, :message => 'Recommendation generated' }
-    
+    # getting similarity value
+    # table = @neo.execute_query("MATCH  (b1:Buyer {userid:'davideko'})-[s:similarity]-(b2:Buyer {userid:'wihihi'}) RETURN s.similarity AS `Cosine Similarity`")
+    # getting neighbors
+    # table = @neo.execute_query("MATCH (b1:Buyer {userid:'davideko'})-[s:similarity]-(b2:Buyer) WITH b2, s.similarity AS sim ORDER BY sim DESC LIMIT 5 RETURN B2.userid AS Neighbor, sim AS Similarity")
+    # generating recommendations
+    recomm = Neo.execute_query("MATCH    (b:Buyer)-[r:rated]->(i:Item), (b)-[s:similarity]-(a:Buyer {userid:'#{id}'})
+                 WHERE    NOT((a)-[:rated]->(i))
+                 WITH     i, s.similarity AS similarity, r.rating AS rating
+                 ORDER BY i.itemid, similarity DESC
+                 WITH     i.itemid AS item, COLLECT(rating)[0..3] AS ratings
+                 WITH     item, REDUCE(s = 0, i IN ratings | s + i)*1.0 / LENGTH(ratings) AS reco
+                 ORDER BY reco DESC
+                 RETURN   item AS Item, reco AS Recommendation")
+
     puts 'RAM USAGE: ' + `pmap #{Process.pid} | tail -1`[10,40].strip
+
+    return recomm
   end
 
-  def edit
+  def startGrafil(iduser)
+    # array of relationship created, array of relationship = g
+    # now create the q, query graph
+    usr = Neo.execute_query("match (n) where n.userid = '#{iduser}' return n")
+    usr_r = Neo.get_node_relationships(usr["data"], "out", "rated")
+
+    # after query graph created extract the features
+    # features = Array.new
+    maxL = usr_r.size()
+    # puts maxL
+    yss = 1.upto(maxL).flat_map do |n|
+      usr_r.combination(n).to_a
+    end
+
+    check = Array.new
+
+    # array of relationship created, array of relationship = g
+
+    getBuyer = Neo.get_nodes_labeled("Buyer")
+
+    count_sub = Array.new
+    most = 0
+    most_id = ""
+    array_most = Array.new
+    itemrec = Array.new
+
+    all_g_relation = Array.new
+    getBuyer.each do |value| 
+      id_d = value["data"]["userid"]
+      unless id_d == iduser
+        one = Neo.execute_query("match (n) where n.userid = '#{id_d}' return n")
+        r = Neo.get_node_relationships(one["data"], "out", "rated")
+        all_g_relation << r
+        yss.each do |ycomp|
+          if ycomp.size() == 1
+            check << checkSub(r,ycomp)
+          end
+        end
+        sum = 0
+        check.each do |ea|
+          sum = sum + ea
+        end
+        unless most > sum
+          if most == 0
+            most = sum
+          elsif most < sum
+            most_id = id_d
+            array_most = Array.new
+          end
+        array_most << id_d
+        end
+        count_sub << {:userid => id_d, :sum => sum}
+        check = Array.new
+      end
+      #get recommendation
+      if array_most.size() > 1
+        puts "much same"
+        itemrec = getGrafil(array_most,iduser)
+      else
+        puts "only one"
+        itemrec = getGrafil(most_id,iduser)
+      end
+    end
+
+    return itemrec
   end
 
-  def update
+  def checkSub(qgraph,feature)
+    puts "========================================"
+    puts "start checking"
+    puts feature.size()
+    if feature.size() <= qgraph.size()
+      i = 0
+      qgraph.each do |qsub|
+        feature.each do |f|
+          if qsub["end"] == f["end"]
+            i = i + 1
+            puts ""
+            puts "THIS IS QSUB"
+            puts qsub["end"]
+            puts "THIS IS F"
+            puts f["end"]
+          end
+        end
+      end
+      if i == feature.size()
+        puts "graph match"
+        return 1
+      else
+        puts "graph not match"
+        return 0
+      end
+    else
+      return 0
+    end
+    puts "end checking"
+  end
+  
+  def getItem(id)
+    item_array = Array.new
+    item = Neo.execute_query("match (n) where n.userid = '#{id}' return n")
+    user_item = Neo.get_node_relationships(item["data"], "out", "rated")
+
+    user_item.each do |u|
+      item_array << u["end"]
+    end
+
+    return item_array
   end
 
-  def destroy
-  end
+  def getGrafil(matchres, usrid)
+    result_array = Array.new
+    if matchres.instance_of? Array
+      puts "array"
 
-  def grafil
-    #get all subgraph G
-  	g = Neo.get_nodes_labeled("Buyer")
-  	all_g_relation = Array.new
-  	g.each {|value| gr = Neo.get_node_relationships(value["data"], "out", "rated"); all_g_relation << gr;}
-
-  	# get all relationship -> Query graph Q
-	  q = Neo.execute_query("MATCH (x:Buyer {userid:'david123'} )-[r:rated]->(y:Item) RETURN r")
-
-	  #calculating set feature
-	  f = Neo.get_node_relationships(queryRelation["data"], "out", "rated")
-	  maxL = f.size()
-	  # calculate dmax
-	  dmax = 1
-
-	  #iteration
+      match_a = getItem(usrid)
+      puts match_a
+      puts "end of match a"
+      puts ""
+      i = 0
+      # get top 5
+      while i < 10  && i < matchres.size() do
+        match_m = getItem(matchres[i])
+        puts match_m
+        puts ""
+        if match_m.size() > match_a.size()
+          result = match_m - match_a
+        else
+          result = match_a - match_m  
+        end
+        unless match_a.include? result[0]
+          result_array << result[0]
+        end
+        i += 1
+      end
+      puts "result"
+      return result_array
+    else
+      puts "not array"
+    end
   end
 
 end

@@ -6,7 +6,7 @@ BasicSocket.do_not_reverse_lookup = true
 # Create socket and bind to address
 data = ""
 client = UDPSocket.new
-client.bind('0.0.0.0', 33333)
+client.bind('0.0.0.0', 3000)
 
 collect = Collect.new
 

@@ -6,7 +6,7 @@ sock = UDPSocket.new
 data = Hash.new
 data['type'] = 'purchase'
 data['userid'] = 'a5'
-data['itemid'] = 'tv1'
+data['itemid'] = 'hp1'
 
-sock.send(data.to_json, 0, '127.0.0.1', 33333)
+sock.send(data.to_json, 0, '0.0.0.0', 3000)
 sock.close

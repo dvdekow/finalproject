@@ -85,7 +85,7 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
 
     # array of relationship created, array of relationship = g
 
-    getBuyer = Neo.get_nodes_labeled("Buyer")
+    getBuyer = Neo.get_schema_index("buyer")
 
     count_sub = Array.new
     most = 0
@@ -97,7 +97,7 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
     getBuyer.each do |value| 
       id_d = value["data"]["userid"]
       unless id_d == iduser
-        one = Neo.execute_query("match (n) where n.userid = '#{id_d}' return n")
+        one = Neo.execute_query("match (buyer:Buyer) where buyer.userid = '#{id_d}' return buyer")
         r = Neo.get_node_relationships(one["data"], "out", "rated")
         all_g_relation << r
         yss.each do |ycomp|
@@ -167,7 +167,7 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
   
   def getItem(id)
     item_array = Array.new
-    item = Neo.execute_query("match (n) where n.userid = '#{id}' return n")
+    item = Neo.execute_query("match (buyer:Buyer) where buyer.userid = '#{id}' return buyer")
     user_item = Neo.get_node_relationships(item["data"], "out", "rated")
 
     user_item.each do |u|

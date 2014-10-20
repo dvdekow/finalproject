@@ -13,6 +13,11 @@ class Reco < EventMachine::Connection
 
   def receive_data(data)
   	p data
+  	close_connection_after_writing
+  end
+
+  def unbind
+  	p 'connection closed'
   end
 end
 

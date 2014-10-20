@@ -87,7 +87,6 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
 
     getBuyer = Neo.get_schema_index("buyer")
 
-    count_sub = Array.new
     most = 0
     most_id = ""
     array_most = Array.new
@@ -118,7 +117,6 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
           end
         array_most << id_d
         end
-        count_sub << {:userid => id_d, :sum => sum}
         check = Array.new
       end
       #get recommendation

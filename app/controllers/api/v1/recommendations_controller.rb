@@ -70,7 +70,7 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
   def startGrafil(iduser)
     # array of relationship created, array of relationship = g
     # now create the q, query graph
-    usr = Neo.execute_query("match (n) where n.userid = '#{iduser}' return n")
+    usr = Neo.execute_query("match (buyer:Buyer) where buyer.userid = '#{iduser}' return buyer")
     usr_r = Neo.get_node_relationships(usr["data"], "out", "rated")
 
     # after query graph created extract the features

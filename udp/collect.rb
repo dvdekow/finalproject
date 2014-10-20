@@ -14,11 +14,15 @@ class Collect
       label_node = @neo.add_label(node, "Buyer")
       
       prop_node = @neo.set_node_properties(node, {"created_at" => time.inspect, "updated_at" => time.inspect})
+
+      @neo.execute_query("CREATE INDEX ON :Buyer(userid)")
     else
       node = @neo.create_node("itemid" => nodeid)
       label_node = @neo.add_label(node, "Item")
       
       prop_node = @neo.set_node_properties(node, {"created_at" => time.inspect, "updated_at" => time.inspect})
+      
+      @neo.execute_query("CREATE INDEX ON :Item(itemid)")
     end
 
     return node
@@ -30,7 +34,7 @@ class Collect
     itemid = itm
     type = tp
 
-    queryBuyer = @neo.execute_query("match (n) where n.userid = '#{userid}' return n")
+    queryBuyer = @neo.execute_query("match (buyer:Buyer) where buyer.userid = '#{userid}' return buyer")
 
     if queryBuyer["data"].empty?
       nodeBuyer = create_node("buyer", userid)
@@ -38,7 +42,7 @@ class Collect
       nodeBuyer = queryBuyer["data"]
     end
 
-    queryItem = @neo.execute_query("match (n) where n.itemid = '#{itemid}' return n")
+    queryItem = @neo.execute_query("match (item:Item) where n.itemid = '#{itemid}' return n")
 
     if queryItem["data"].empty?
       nodeItem = create_node("item", itemid)

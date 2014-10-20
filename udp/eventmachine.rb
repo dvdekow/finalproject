@@ -6,8 +6,8 @@ class Reco < EventMachine::Connection
   def post_init
   	data = Hash.new
     data['type'] = 'look'
-    data['userid'] = 'a2'
-    data['itemid'] = 'hp2'
+    data['userid'] = 'a3'
+    data['itemid'] = 'hp3'
     send_data data.to_json
   end
 

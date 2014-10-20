@@ -42,7 +42,7 @@ class Collect
       nodeBuyer = queryBuyer["data"]
     end
 
-    queryItem = @neo.execute_query("match (item:Item) where n.itemid = '#{itemid}' return n")
+    queryItem = @neo.execute_query("match (item:Item) where item.itemid = '#{itemid}' return item")
 
     if queryItem["data"].empty?
       nodeItem = create_node("item", itemid)

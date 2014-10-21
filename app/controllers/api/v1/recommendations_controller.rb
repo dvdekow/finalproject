@@ -70,6 +70,7 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
   def startGrafil(iduser)
     # array of relationship created, array of relationship = g
     # now create the q, query graph
+    puts "in"
     usr = Neo.execute_query("match (buyer:Buyer) where buyer.userid = '#{iduser}' return buyer")
     usr_r = Neo.get_node_relationships(usr["data"], "out", "rated")
 
@@ -85,8 +86,9 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
 
     # array of relationship created, array of relationship = g
 
-    getBuyer = Neo.get_schema_index("buyer")
-
+    getBuyer = Neo.get_nodes_labeled("Buyer") 
+    puts "ini getbuyer"
+    puts getBuyer
     most = 0
     most_id = ""
     array_most = Array.new
@@ -98,6 +100,7 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
       unless id_d == iduser
         one = Neo.execute_query("match (buyer:Buyer) where buyer.userid = '#{id_d}' return buyer")
         r = Neo.get_node_relationships(one["data"], "out", "rated")
+        puts r
         all_g_relation << r
         yss.each do |ycomp|
           if ycomp.size() == 1
@@ -119,12 +122,15 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
         end
         check = Array.new
       end
+
       #get recommendation
       if array_most.size() > 1
         puts "much same"
+        puts array_most
         itemrec = getGrafil(array_most,iduser)
       else
         puts "only one"
+        puts most_id
         itemrec = getGrafil(most_id,iduser)
       end
     end
@@ -183,24 +189,29 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
       match_a = getItem(usrid)
       puts match_a
       puts "end of match a"
+      puts match_a.size()
       puts ""
       i = 0
       # get top 5
       while i < 10  && i < matchres.size() do
+        puts matchres[i]
         match_m = getItem(matchres[i])
         puts match_m
         puts ""
-        if match_m.size() > match_a.size()
-          result = match_m - match_a
-        else
-          result = match_a - match_m  
-        end
-        unless match_a.include? result[0]
-          result_array << result[0]
+        # mencari node yang belum pernah dikunjungi
+        result = match_m - match_a
+        
+        result.each do |rsl|
+          unless match_a.include? rsl
+            unless result_array.include? rsl
+              result_array << rsl
+            end
+          end
         end
         i += 1
       end
       puts "result"
+      puts result_array
       return result_array
     else
       puts "not array"

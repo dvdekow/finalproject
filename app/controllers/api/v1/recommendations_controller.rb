@@ -87,8 +87,7 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
     # array of relationship created, array of relationship = g
 
     getBuyer = Neo.get_nodes_labeled("Buyer") 
-    puts "ini getbuyer"
-    puts getBuyer
+    
     most = 0
     most_id = ""
     array_most = Array.new
@@ -124,15 +123,7 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
       end
 
       #get recommendation
-      if array_most.size() > 1
-        puts "much same"
-        puts array_most
-        itemrec = getGrafil(array_most,iduser)
-      else
-        puts "only one"
-        puts most_id
-        itemrec = getGrafil(most_id,iduser)
-      end
+      itemrec = getGrafil(array_most,iduser)
     end
 
     return itemrec
@@ -183,39 +174,24 @@ class Api::V1::RecommendationsController < Api::V1::BaseController
 
   def getGrafil(matchres, usrid)
     result_array = Array.new
-    if matchres.instance_of? Array
-      puts "array"
-
-      match_a = getItem(usrid)
-      puts match_a
-      puts "end of match a"
-      puts match_a.size()
-      puts ""
+    match_a = getItem(usrid)
+      
+      #iteration start for selected userid
       i = 0
       # get top 5
       while i < 10  && i < matchres.size() do
-        puts matchres[i]
         match_m = getItem(matchres[i])
-        puts match_m
-        puts ""
-        # mencari node yang belum pernah dikunjungi
+        # search unvisited node
         result = match_m - match_a
         
         result.each do |rsl|
-          unless match_a.include? rsl
-            unless result_array.include? rsl
-              result_array << rsl
-            end
+          unless result_array.include? rsl.split("/").last
+            result_array << rsl.split("/").last
           end
         end
         i += 1
       end
-      puts "result"
-      puts result_array
-      return result_array
-    else
-      puts "not array"
-    end
+    return result_array
   end
 
 end

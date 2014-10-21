@@ -7,7 +7,7 @@ class Reco < EventMachine::Connection
   	data = Hash.new
     data['type'] = 'look'
     data['userid'] = 'a3'
-    data['itemid'] = 'hp3'
+    data['itemid'] = 'hp1'
     send_data data.to_json
   end
 

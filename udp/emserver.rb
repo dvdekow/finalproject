@@ -22,9 +22,33 @@ private
   end
 end
 
+class LookIntr < RecoServer
+  def run(defer)
+  	process(defer, 1, "Completed look in 1 second with param = #{@param}")
+  end
+end
+
+class PurchaseIntr < RecoServer
+  def run(defer)
+  	process(defer, 1, "Completed in purchase 1 second with param = #{@param}")
+  end
+end
+
+class InvalidIntr <  RecoServer
+  def run(defer)
+    process(defer, 0, "Invalid")
+  end
+end
+
 class RequestHandler
+  INTR = {
+  	"LOOK" => LookIntr,
+  	"PURCHASE" => PurchaseIntr
+  }
+  INTR.default = InvalidIntr
   def self.parse(command)
   	type, param = command.split
+  	INTR[type].new(param)
   end
 end
 

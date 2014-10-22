@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'eventmachine'
-require 'json'
 require 'date'
 require './collect'
 

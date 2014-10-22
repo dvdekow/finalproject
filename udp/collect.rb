@@ -57,10 +57,8 @@ class Collect
     unless rel.nil?
       if type.eql? "look"
         wrel = @neo.set_relationship_properties(rel, {"rating" => 1, "type" => type})
-        puts "its look"
       else
         wrel = @neo.set_relationship_properties(rel, {"rating" => 2, "type" => type})
-        puts "its purchase"
       end
         wrel = @neo.set_relationship_properties(rel, {"created_at" => time.inspect,"updated_at" => time.inspect})
     else

@@ -7,6 +7,15 @@ require './collect'
 class RecoServer
   def initialize(param = "")
   	@param = param
+  	id = param.split(",")
+  	if id.size() == 2
+  	  @userid = id[0]
+  	  @itemid = id[1]
+  	else
+  	  @userid = "example"
+  	  @itemid = "example"
+  	end
+  	@collect = Collect.new
   end
 
   def run(defer)
@@ -24,13 +33,19 @@ end
 
 class LookIntr < RecoServer
   def run(defer)
-  	process(defer, 1, "Completed look in 1 second with param = #{@param}")
+  	unless @userid == "example"
+  	  @collect.relation(@userid,@itemid,'look')
+  	end
+  	process(defer, 0, "Completed look with param = #{@param}")
   end
 end
 
 class PurchaseIntr < RecoServer
   def run(defer)
-  	process(defer, 1, "Completed in purchase 1 second with param = #{@param}")
+  	unless @userid == "example"
+      @collect.relation(@userid,@itemid,'purchase')
+    end
+    process(defer, 0, "Completed purchase with param = #{@param}")
   end
 end
 
@@ -48,6 +63,8 @@ class RequestHandler
   INTR.default = InvalidIntr
   def self.parse(command)
   	type, param = command.split
+  	id = param.split(",")
+  	
   	INTR[type].new(param)
   end
 end
